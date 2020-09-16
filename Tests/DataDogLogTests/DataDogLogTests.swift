@@ -20,7 +20,7 @@ final class DataDogLogTests: XCTestCase {
         let expectedMessage = "Testing swift-log-data-dog"
         let expectedSource = "com.swift-log"
         let expectedHostname = "xctest"
-        let expectedTags = "callsite:test-function:100,foo:bar,log:swift"
+        let expectedTags = "callsite:test-function:100 in test-file,foo:bar,log:swift"
 
         var handler = DataDogLogHandler(label: expectedSource, key: "", hostname: expectedHostname)
         handler.metadata = ["foo":"bar"]
@@ -48,6 +48,21 @@ final class DataDogLogTests: XCTestCase {
         XCTAssert(usLogHandler.region == .US)
         XCTAssert(usLogHandler.region.getURL().absoluteString == "https://http-intake.logs.datadoghq.com/v1/input")
         XCTAssert(defaultLogHandler.region == .US)
+    }
+    
+    func testLongFilePath() {
+        var handler = DataDogLogHandler(label: "example", key: "key", hostname: "host")
+        handler.session = TestSession()
+        let expectedTags = "callsite:test-function:100 in test-file"
+        handler.log(level: .error, message: "foo", metadata: [:], file: "/some/long/path/to/test-file", function: "test-function", line: 100)
+        
+        
+        guard let session = handler.session as? TestSession else {
+            XCTAssert(false, "Invalid Test")
+            return
+        }
+        
+        XCTAssertEqual(expectedTags, session.tags, "Expected \(expectedTags), result was \(String(describing: session.tags))")
     }
 
     static var allTests = [
