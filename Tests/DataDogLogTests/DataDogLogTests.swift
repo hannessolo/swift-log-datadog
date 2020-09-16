@@ -20,7 +20,7 @@ final class DataDogLogTests: XCTestCase {
         let expectedMessage = "Testing swift-log-data-dog"
         let expectedSource = "com.swift-log"
         let expectedHostname = "xctest"
-        let expectedTags = "callsite:test-function:100 in test-file,foo:bar,log:swift"
+        let expectedTags = "callsite:test-function:100 in \(expectedSource).test-file,foo:bar,log:swift"
 
         var handler = DataDogLogHandler(label: expectedSource, key: "", hostname: expectedHostname)
         handler.metadata = ["foo":"bar"]
@@ -53,7 +53,7 @@ final class DataDogLogTests: XCTestCase {
     func testLongFilePath() {
         var handler = DataDogLogHandler(label: "example", key: "key", hostname: "host")
         handler.session = TestSession()
-        let expectedTags = "callsite:test-function:100 in test-file"
+        let expectedTags = "callsite:test-function:100 in example.test-file"
         handler.log(level: .error, message: "foo", metadata: [:], file: "/some/long/path/to/test-file", function: "test-function", line: 100)
         
         
